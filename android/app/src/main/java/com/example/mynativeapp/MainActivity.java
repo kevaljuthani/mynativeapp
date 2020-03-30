@@ -18,7 +18,7 @@ import android.os.Bundle;
 
 public class MainActivity extends FlutterActivity {
 
-    private static final String CHANNEL = "samples.flutter.dev/battery";
+    private static final String CHANNEL = "keval.app/getBatteryLevel";
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
