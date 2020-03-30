@@ -4,43 +4,43 @@ import androidx.annotation.NonNull;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
-import io.flutter.plugins.common.MethodCall;
-import io.flutter.plugins.common.MethodChannel;
-import io.flutter.plugins.common.MethodChannel.Result;
-import io.flutter.plugins.common.MethodChannel.MethodCallHandler;
 
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build.VERSION;
-import android.os.build.VERSION_CODES;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 
 public class MainActivity extends FlutterActivity {
+
+    private static final String CHANNEL = "samples.flutter.dev/battery";
+
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-        GeneratedPluginRegistrant.registerWith(flutterEngine);
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
+                .setMethodCallHandler(
+                        (call, result) -> {
+                            // Note: this method is invoked on the main thread.
+                            if (call.method.equals("getBatteryLevel")) {
+                                int batteryLevel = getBatteryLevel();
 
-        new MethodChannel(getFlutterView(), "keval.app/getBatteryLevel").setMethodCallHandler(
-                new MethodCallHandler() {
-                    @Override
-                    public void onMethodCall(MethodCall call, Result result) {
-                        if (call.method.equals("getBatteryLevel")) {
-                            int batteryLevel = getBatteryLevel();
-                            if (batteryLevel != -1) {
-                                result.success(batteryLevel);
+                                if (batteryLevel != -1) {
+                                    result.success(batteryLevel);
+                                } else {
+                                    result.error("UNAVAILABLE", "Battery level not available.", null);
+                                }
                             } else {
-                                result.error("UNAVAILABLE", "Could not fetch battery level");
+                                result.notImplemented();
                             }
-                        } else {
-                            result.notImplemented();
                         }
-                    }
-                }
-        );
+                );
     }
+
 
     private int getBatteryLevel() {
         int batteryLevel = -1;
